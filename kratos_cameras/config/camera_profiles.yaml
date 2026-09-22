@@ -22,3 +22,35 @@ camera_stream_node:
     profiles.gimbal.fps: 60
     profiles.gimbal.format: YUY2
     profiles.gimbal.encoder: av1  # Options: av1, h265
+
+    # FPV 1280x720
+    profiles.fpv_720p.bitrate: 6000
+    profiles.fpv_720p.width: 1280
+    profiles.fpv_720p.height: 720
+    profiles.fpv_720p.fps: 30
+    profiles.fpv_720p.format: MJPG
+    profiles.fpv_720p.encoder: av1
+
+    # FPV 1920x1080
+    profiles.fpv_1080p.bitrate: 8000
+    profiles.fpv_1080p.width: 1920
+    profiles.fpv_1080p.height: 1080
+    profiles.fpv_1080p.fps: 30
+    profiles.fpv_1080p.format: MJPG
+    profiles.fpv_1080p.encoder: av1
+
+    # FPV 2048x1536
+    profiles.fpv_2k.bitrate: 10000
+    profiles.fpv_2k.width: 2048
+    profiles.fpv_2k.height: 1536
+    profiles.fpv_2k.fps: 30
+    profiles.fpv_2k.format: MJPG
+    profiles.fpv_2k.encoder: av1
+
+    # FPV 2592x1944
+    profiles.fpv_5mp.bitrate: 12000
+    profiles.fpv_5mp.width: 2592
+    profiles.fpv_5mp.height: 1944
+    profiles.fpv_5mp.fps: 30
+    profiles.fpv_5mp.format: MJPG
+    profiles.fpv_5mp.encoder: av1
