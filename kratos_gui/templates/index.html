@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kratos Camera Control</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f1117;
+            color: #e1e4e8;
+            min-height: 100vh;
+        }
+
+        /* -- Header ---------------------------------------------------- */
+        .header {
+            background: linear-gradient(135deg, #161b22 0%, #1c2333 100%);
+            border-bottom: 1px solid #30363d;
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #f0f3f6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3fb950;
+            box-shadow: 0 0 8px rgba(63, 185, 80, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* -- Buttons --------------------------------------------------- */
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-start {
+            background: #238636;
+            color: #fff;
+        }
+        .btn-start:hover:not(:disabled) { background: #2ea043; }
+
+        .btn-stop {
+            background: #da3633;
+            color: #fff;
+        }
+        .btn-stop:hover:not(:disabled) { background: #f85149; }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* -- Status bar ------------------------------------------------ */
+        .status-bar {
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            padding: 10px 32px;
+            font-size: 13px;
+            color: #8b949e;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-bar .count {
+            color: #f0f3f6;
+            font-weight: 600;
+        }
+
+        /* -- Toast notification ---------------------------------------- */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1c2333;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #e1e4e8;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            max-width: 360px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success { border-left: 3px solid #3fb950; }
+        .toast.error { border-left: 3px solid #f85149; }
+
+        /* -- Camera grid ----------------------------------------------- */
+        .camera-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 20px;
+            padding: 24px 32px;
+        }
+
+        .camera-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+
+        .camera-card:hover {
+            border-color: #484f58;
+        }
+
+        .camera-card.active {
+            border-color: #238636;
+        }
+
+        /* -- Card header ----------------------------------------------- */
+        .card-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title h3 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+        }
+
+        .badge-inactive {
+            background: rgba(139, 148, 158, 0.15);
+            color: #8b949e;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* -- Card info ------------------------------------------------- */
+        .card-info {
+            padding: 12px 18px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #8b949e;
+            border-bottom: 1px solid #21262d;
+        }
+
+        .card-info .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-info .info-label {
+            color: #484f58;
+        }
+
+        .card-info .info-value {
+            color: #c9d1d9;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        /* -- Video feed ------------------------------------------------ */
+        .feed-container {
+            background: #0d1117;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .feed-container img {
+            width: 100%;
+            display: block;
+        }
+
+        .feed-placeholder {
+            color: #484f58;
+            font-size: 13px;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .feed-placeholder .icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            opacity: 0.4;
+        }
+
+        /* -- Empty state ----------------------------------------------- */
+        .empty-state {
+            text-align: center;
+            padding: 80px 32px;
+            color: #484f58;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state h2 {
+            font-size: 18px;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* -- Responsive ------------------------------------------------ */
+        @media (max-width: 600px) {
+            .camera-grid {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            .header { padding: 16px; }
+            .status-bar { padding: 10px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>
+            <div class="dot"></div>
+            Kratos Cameras
+        </h1>
+        <div class="header-actions">
+            <button class="btn btn-start" onclick="startAll()">▶ Start All</button>
+            <button class="btn btn-stop" onclick="stopAll()">■ Stop All</button>
+        </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+        <span>Cameras detected: <span class="count" id="total-count">0</span></span>
+        <span>Active streams: <span class="count" id="active-count">0</span></span>
+    </div>
+
+    <!-- Camera grid -->
+    <div class="camera-grid" id="camera-grid">
+        <div class="empty-state">
+            <div class="icon">📷</div>
+            <h2>Waiting for cameras …</h2>
+            <p>Make sure the camera node is running on the robot</p>
+        </div>
+    </div>
+
+    <script>
+        let previousCameras = [];
+
+        // -- Toast notification -----------------------------------------
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => { toast.className = 'toast'; }, 3000);
+        }
+
+        // -- API calls --------------------------------------------------
+        async function apiCall(url, method = 'POST') {
+            try {
+                const res = await fetch(url, { method });
+                const data = await res.json();
+                showToast(data.message, data.success ? 'success' : 'error');
+                // Refresh immediately after action
+                setTimeout(refreshCameras, 500);
+                return data;
+            } catch (err) {
+                showToast('Request failed: ' + err.message, 'error');
+            }
+        }
+
+        function startCamera(name) { apiCall(`/api/cameras/start/${encodeURIComponent(name)}`); }
+        function stopCamera(name)  { apiCall(`/api/cameras/stop/${encodeURIComponent(name)}`); }
+        function startAll()        { apiCall('/api/cameras/start_all'); }
+        function stopAll()         { apiCall('/api/cameras/stop_all'); }
+
+        // -- Render cameras ---------------------------------------------
+        function renderCameras(cameras) {
+            const grid = document.getElementById('camera-grid');
+
+            document.getElementById('total-count').textContent = cameras.length;
+            document.getElementById('active-count').textContent =
+                cameras.filter(c => c.active).length;
+
+            if (cameras.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📷</div>
+                        <h2>No cameras detected</h2>
+                        <p>Make sure the camera node is running and cameras are plugged in</p>
+                    </div>`;
+                return;
+            }
+
+            // Check if camera list structure changed (to avoid re-rendering video feeds)
+            const camKey = cam => `${cam.name}:${cam.port}:${cam.active}`;
+            const prevKey = previousCameras.map(camKey).join('|');
+            const currKey = cameras.map(camKey).join('|');
+
+            if (prevKey === currKey) {
+                return;  // No change — skip re-render to keep video feeds alive
+            }
+            previousCameras = cameras;
+
+            grid.innerHTML = cameras.map(cam => `
+                <div class="camera-card ${cam.active ? 'active' : ''}">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <h3>${escHtml(cam.name)}</h3>
+                            <span class="badge ${cam.active ? 'badge-active' : 'badge-inactive'}">
+                                ${cam.active ? 'LIVE' : 'OFFLINE'}
+                            </span>
+                        </div>
+                        <div class="card-actions">
+                            ${cam.active
+                                ? `<button class="btn btn-stop btn-sm" onclick="stopCamera('${escAttr(cam.name)}')">■ Stop</button>`
+                                : `<button class="btn btn-start btn-sm" onclick="startCamera('${escAttr(cam.name)}')">▶ Start</button>`
+                            }
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <div class="info-item">
+                            <span class="info-label">Device</span>
+                            <span class="info-value">${escHtml(cam.device)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Resolution</span>
+                            <span class="info-value">${escHtml(cam.resolution)}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">FPS</span>
+                            <span class="info-value">${cam.fps}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Port</span>
+                            <span class="info-value">${cam.port}</span>
+                        </div>
+                    </div>
+                    <div class="feed-container">
+                        ${cam.active
+                            ? `<img src="/api/stream/${cam.port}" alt="${escAttr(cam.name)} feed" />`
+                            : `<div class="feed-placeholder">
+                                   <div class="icon">📡</div>
+                                   <div>Stream inactive — click Start to begin</div>
+                               </div>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // -- Helpers ----------------------------------------------------
+        function escHtml(s) {
+            const div = document.createElement('div');
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        function escAttr(s) {
+            return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        // -- Polling ----------------------------------------------------
+        async function refreshCameras() {
+            try {
+                const res = await fetch('/api/cameras');
+                const cameras = await res.json();
+                renderCameras(cameras);
+            } catch (err) {
+                // Silently ignore — will retry
+            }
+        }
+
+        // Initial load + poll every 2 seconds
+        refreshCameras();
+        setInterval(refreshCameras, 2000);
+    </script>
+</body>
+</html>

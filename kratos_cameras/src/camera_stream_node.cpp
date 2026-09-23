@@ -193,10 +193,11 @@ void CameraStreamNode::load_stream_profiles()
     normal_profile_ = load_profile("profiles.normal");
     zed_profile_ = load_profile("profiles.zed");
     gimbal_profile_ = load_profile("profiles.gimbal");
+    fpv_profile_ = load_profile("profiles.fpv_1080p");
 
     RCLCPP_INFO(
         this->get_logger(),
-        "Loaded stream profiles: normal(%dx%d@%d, %s, %d bps), zed(%dx%d@%d, %s, %d bps), gimbal(%dx%d@%d, %s, %d bps)",
+        "Loaded stream profiles: normal(%dx%d@%d, %s, %d bps), zed(%dx%d@%d, %s, %d bps), gimbal(%dx%d@%d, %s, %d bps), fpv(%dx%d@%d, %s, %d bps)",
         normal_profile_.resolution.width,
         normal_profile_.resolution.height,
         normal_profile_.fps,
@@ -211,7 +212,12 @@ void CameraStreamNode::load_stream_profiles()
         gimbal_profile_.resolution.height,
         gimbal_profile_.fps,
         gimbal_profile_.format.c_str(),
-        gimbal_profile_.bitrate);
+        gimbal_profile_.bitrate,
+        fpv_profile_.resolution.width,
+        fpv_profile_.resolution.height,
+        fpv_profile_.fps,
+        fpv_profile_.format.c_str(),
+        fpv_profile_.bitrate);
 }
 
 StreamProfile CameraStreamNode::get_profile_for_camera_name(const std::string & camera_name) const
@@ -223,6 +229,10 @@ StreamProfile CameraStreamNode::get_profile_for_camera_name(const std::string & 
     if (camera_name == "GIMBAL")
     {
         return gimbal_profile_;
+    }
+    if (camera_name == "FPV")
+    {
+        return fpv_profile_;
     }
     return normal_profile_;
 }
@@ -273,6 +283,12 @@ std::pair<std::string, int> CameraStreamNode::get_camera_name_and_port(const std
                 {
                     close(fd);
                     return {"GIMBAL", 8999};
+                }
+
+                if (card_name.find("USB Camera") != std::string::npos)
+                {
+                    close(fd);
+                    return {"FPV", 5600};
                 }
             }
             close(fd);
