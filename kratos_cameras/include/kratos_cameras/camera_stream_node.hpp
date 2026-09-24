@@ -93,6 +93,7 @@ private:
     StreamProfile normal_profile_;
     StreamProfile zed_profile_;
     StreamProfile gimbal_profile_;
+    StreamProfile fpv_profile_;
     std::string stream_destination_host_;
     std::unique_ptr<GstStreamManager> gst_stream_manager_;
     

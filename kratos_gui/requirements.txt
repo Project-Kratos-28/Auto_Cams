@@ -1,0 +1,18 @@
+# Kratos GUI Python Dependencies
+flask
+PyGObject
+
+# ==============================================================================
+# SYSTEM DEPENDENCIES REQUIRED!
+# ==============================================================================
+# GStreamer relies on system-level C libraries that pip cannot install.
+# You MUST run this command on Ubuntu before the Python bindings will work:
+#
+# sudo apt update && sudo apt install -y \
+#     python3-gi \
+#     gstreamer1.0-plugins-good \
+#     gstreamer1.0-plugins-bad \
+#     gstreamer1.0-libav \
+#     gir1.2-gst-plugins-base-1.0 \
+#     gir1.2-gstreamer-1.0
+# ==============================================================================
