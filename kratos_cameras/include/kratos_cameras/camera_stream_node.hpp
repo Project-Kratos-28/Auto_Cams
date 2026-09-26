@@ -36,7 +36,7 @@ struct StreamProfile
     Resolution resolution;
     int fps{0};
     std::string format;
-    std::string encoder{"av1"};
+    std::string encoder{"h265"};
 };
 
 struct CameraStreamConfig
@@ -49,7 +49,7 @@ struct CameraStreamConfig
     bool active;
     int bitrate{0};
     std::string format;
-    std::string encoder{"av1"};
+    std::string encoder{"h265"};
 };
 
 class CameraStreamNode : public rclcpp::Node

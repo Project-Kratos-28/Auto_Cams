@@ -18,15 +18,25 @@ def generate_launch_description():
         description='Path to camera profile parameters file'
     )
 
+    destination_host_arg = DeclareLaunchArgument(
+        'destination_host',
+        default_value='192.168.1.69',
+        description='IP of the machine running the GUI (127.0.0.1 if local)'
+    )
+
     camera_node = Node(
         package='kratos_cameras',
         executable='basic_node',
         name='camera_stream_node',
         output='screen',
-        parameters=[LaunchConfiguration('params_file')]
+        parameters=[
+            LaunchConfiguration('params_file'),
+            {'stream.destination_host': LaunchConfiguration('destination_host')},
+        ]
     )
 
     return LaunchDescription([
         params_file_arg,
+        destination_host_arg,
         camera_node,
     ])

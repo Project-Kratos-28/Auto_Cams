@@ -22,7 +22,7 @@ struct GstCameraPipelineConfig
     int bitrate{0};
     std::string destination_host;
     int destination_port{0};
-    std::string encoder{"av1"};
+    std::string encoder{"h265"};
 };
 
 class GstStreamManager

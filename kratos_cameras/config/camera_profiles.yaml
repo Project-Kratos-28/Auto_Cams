@@ -1,35 +1,27 @@
 camera_stream_node:
   ros__parameters:
-    stream.destination_host: 10.20.8.202
+    stream.destination_host: 192.168.1.69
 
     profiles.normal.bitrate: 8000
     profiles.normal.width: 1280
     profiles.normal.height: 720
     profiles.normal.fps: 30
     profiles.normal.format: MJPG
-    profiles.normal.encoder: av1  # Options: av1, h265
+    profiles.normal.encoder: h265  # Options: av1, h265 (GUI receives H265 RTP over UDP)
 
     profiles.zed.bitrate: 12000
     profiles.zed.width: 1920
     profiles.zed.height: 1080
     profiles.zed.fps: 30
     profiles.zed.format: NV12
-    profiles.zed.encoder: av1  # Options: av1, h265
+    profiles.zed.encoder: h265  # Options: av1, h265 (GUI receives H265 RTP over UDP)
 
     profiles.gimbal.bitrate: 8000
     profiles.gimbal.width: 1920
     profiles.gimbal.height: 1080
-    profiles.gimbal.fps: 60
-    profiles.gimbal.format: YUY2
-    profiles.gimbal.encoder: av1  # Options: av1, h265
-
-    # FPV 1280x720
-    profiles.fpv_720p.bitrate: 6000
-    profiles.fpv_720p.width: 1280
-    profiles.fpv_720p.height: 720
-    profiles.fpv_720p.fps: 30
-    profiles.fpv_720p.format: MJPG
-    profiles.fpv_720p.encoder: av1
+    profiles.gimbal.fps: 30
+    profiles.gimbal.format: MJPG  # OBSBOT only offers YUYV up to 640x480
+    profiles.gimbal.encoder: h265  # Options: av1, h265 (GUI receives H265 RTP over UDP)
 
     # FPV 1920x1080
     profiles.fpv_1080p.bitrate: 8000
@@ -37,20 +29,5 @@ camera_stream_node:
     profiles.fpv_1080p.height: 1080
     profiles.fpv_1080p.fps: 30
     profiles.fpv_1080p.format: MJPG
-    profiles.fpv_1080p.encoder: av1
+    profiles.fpv_1080p.encoder: h265
 
-    # FPV 2048x1536
-    profiles.fpv_2k.bitrate: 10000
-    profiles.fpv_2k.width: 2048
-    profiles.fpv_2k.height: 1536
-    profiles.fpv_2k.fps: 30
-    profiles.fpv_2k.format: MJPG
-    profiles.fpv_2k.encoder: av1
-
-    # FPV 2592x1944
-    profiles.fpv_5mp.bitrate: 12000
-    profiles.fpv_5mp.width: 2592
-    profiles.fpv_5mp.height: 1944
-    profiles.fpv_5mp.fps: 30
-    profiles.fpv_5mp.format: MJPG
-    profiles.fpv_5mp.encoder: av1

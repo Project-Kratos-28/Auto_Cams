@@ -186,7 +186,7 @@ void CameraStreamNode::load_stream_profiles()
         profile.resolution.height = this->declare_parameter<int>(prefix + ".height");
         profile.fps = this->declare_parameter<int>(prefix + ".fps");
         profile.format = this->declare_parameter<std::string>(prefix + ".format");
-        profile.encoder = this->declare_parameter<std::string>(prefix + ".encoder", "av1");
+        profile.encoder = this->declare_parameter<std::string>(prefix + ".encoder", "h265");
         return profile;
     };
 
